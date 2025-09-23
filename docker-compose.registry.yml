@@ -1,0 +1,10 @@
+version: "3.9"
+services:
+  php:
+    image: dogman11/webapp-php:latest
+  nginx:
+    image: dogman11/webapp-nginx:latest
+    depends_on:
+      - php
+    ports:
+      - "8080:80"

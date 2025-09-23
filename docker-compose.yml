@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  php:
+    build:
+      context: .
+      dockerfile: php.Dockerfile
+    image: dogman11/webappphp:latest
+    container_name: inl2-php
+    working_dir: /var/www/html
+    healthcheck:
+      test: ["CMD", "php", "-v"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx.Dockerfile
+    image: dogman11/webappnginx:latest
+    container_name: inl2-nginx
+    depends_on:
+      - php
+    ports:
+      - "8080:80"
+    # Viktigt: Nginx pratar med php-tjänsten via dess servicenamn
+    # (detta ställs in i default.conf via fastcgi_pass php:9000)

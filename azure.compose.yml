@@ -1,0 +1,8 @@
+services:
+  php:
+    image: dogman11/webapp-php:v2      # byt namespace om du använder doogmann
+  nginx:
+    image: dogman11/webapp-nginx:v2
+    depends_on:
+      - php
+    # ingen ports-mapping behövs i Azure, nginx lyssnar på 80 i containern
