@@ -1,4 +1,5 @@
-FROM nginx:1.25-alpine
+# nginx.Dockerfile
+FROM docker.io/library/nginx:1.25-alpine
 
 # Global + server-konfig
 COPY nginx/nginx.conf /etc/nginx/nginx.conf

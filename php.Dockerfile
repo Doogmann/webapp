@@ -1,4 +1,5 @@
-FROM php:8.2-fpm-alpine
+# php.Dockerfile
+FROM docker.io/library/php:8.2-fpm-alpine
 
 WORKDIR /var/www/html
 
