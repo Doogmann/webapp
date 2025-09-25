@@ -1,8 +1,15 @@
-webapp/
+## webapp/
 ├─ public/
-│  └─ index.php        # Webbappens entrypoint (DocumentRoot)
-├─ src/                # (Valfritt) PHP-kod, klasser, helpers
-├─ Dockerfile          # Bygger och kör webbappen i container
-├─ .dockerignore       # Uteslut vid docker build
-├─ .gitignore          # Uteslut i Git
-└─ README.md
+│  └─ index.php              # routing: /, /contact (CSRF), /health
+├─ src/
+│  ├─ bootstrap.php          # sessions, säkerhetsheaders, CSRF
+│  └─ views.php              # minimal templating/layout
+├─ nginx/
+│  ├─ nginx.conf             # gzip, rate limit, includes
+│  └─ default.conf           # serverblock + fastcgi till php:9000
+├─ php.ini                   # PHP-hardening
+├─ php.Dockerfile            # FROM php:8.2-fpm-alpine
+├─ nginx.Dockerfile          # FROM nginx:1.25-alpine
+├─ docker-compose.yml        # lokal dev (bygger images)
+├─ docker-compose.registry.yml   # kör från Docker Hub
+└─ .github/workflows/build-push-deploy.yml  # CI/CD → Docker Hub + Azure
