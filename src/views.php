@@ -40,19 +40,86 @@ function layout(string $title, string $content): string {
     . '<main class="wrap">'.$content.'</main>'
     . '<footer>Mirsad Karangja - © WebApp</footer>'
     . '<script nonce="'.$nonce.'">
-        (() => {
-  const c=document.getElementById("bg"),x=c.getContext("2d");let W=0,H=0,raf=0;
-  function R(){W=c.width=innerWidth;H=c.height=innerHeight;}
-  addEventListener("resize",R); R();
-  const N=398, S=0.44;
-  let P=Array.from({length:N},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*S,vy:(Math.random()-.5)*S}));
-  function D(){x.clearRect(0,0,W,H); const col=getComputedStyle(document.documentElement).getPropertyValue("--neon").trim()||"#8000ff";
-    x.fillStyle=col; for(const n of P){n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1; x.beginPath(); x.arc(n.x,n.y,2,0,7); x.fill();}
-    for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++){const a=P[i],b=P[j],d=Math.hypot(a.x-b.x,a.y-b.y);
-      if(d<120){x.strokeStyle=`rgba(0,240,255,${1-d/120})`;x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke();}}
-    raf=requestAnimationFrame(D);} D();
-})();
-      </script>'
+    <?php
+function render_layout(string $title, string $content, string $nonce = ''): string {
+    $nonceAttr = $nonce ? ' nonce="'.$nonce.'"' : '';
+    return <<<HTML
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{$title}</title>
+  <style>
+    :root{--bg:#0b0f14;--panel:#121820;--text:#e5f7ff;--accent:#6ee7b7;}
+    html,body{height:100%}body{margin:0;background:#0b0f14;color:#e5f7ff;font:16px/1.5 system-ui,Segoe UI,Roboto,Helvetica,Arial}
+    .container{max-width:1024px;margin:0 auto;padding:24px}
+    header,footer{position:relative;z-index:2}
+    .card{background:#121820;border:1px solid #1d2733;border-radius:14px;padding:24px;box-shadow:0 8px 30px rgba(0,0,0,.35)}
+    a{color:#6ee7b7;text-decoration:none}
+    nav a{margin-right:18px}
+    #bg{position:fixed;inset:0;z-index:0}
+  </style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+
+<header class="container">
+  <nav>
+    <strong>WebApp</strong>
+    <a href="/">Hem</a>
+    <a href="/contact">Kontakt</a>
+    <a href="/messages">Meddelanden</a>
+    <a href="/health">Health</a>
+  </nav>
+</header>
+
+<main class="container">
+  <div class="card">
+    {$content}
+  </div>
+</main>
+
+<footer class="container">
+  <small>© WebApp</small>
+</footer>
+
+<script{$nonceAttr}>
+// Matrix-liknande partiklar (ingen text, bara punkter + länkar)
+const c=document.getElementById('bg'), ctx=c.getContext('2d');
+let W=0,H=0, P=[], LINKS=120, N=120;
+function resize(){ W=c.width=innerWidth; H=c.height=innerHeight;
+  P=[...Array(N)].map(()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*0.7,vy:(Math.random()-.5)*0.7}));
+}
+function tick(){
+  ctx.clearRect(0,0,W,H);
+  // lätt grön ton
+  ctx.fillStyle='rgba(110,231,183,0.9)';
+  P.forEach(p=>{
+    p.x+=p.vx; p.y+=p.vy;
+    if(p.x<0||p.x>W) p.vx*=-1;
+    if(p.y<0||p.y>H) p.vy*=-1;
+    ctx.beginPath(); ctx.arc(p.x,p.y,1.8,0,Math.PI*2); ctx.fill();
+  });
+  for(let i=0;i<P.length;i++){
+    for(let j=i+1;j<P.length;j++){
+      const a=P[i], b=P[j], d=Math.hypot(a.x-b.x,a.y-b.y);
+      if(d<LINKS){
+        ctx.strokeStyle=`rgba(110,231,183,${1-d/LINKS})`;
+        ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(tick);
+}
+addEventListener('resize', resize);
+resize(); tick();
+</script>
+</body>
+</html>
+HTML;
+}
+</script>'
     . '</html>';
 }
 
