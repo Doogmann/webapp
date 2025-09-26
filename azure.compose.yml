@@ -1,6 +1,13 @@
 services:
   php:
-    image: dogman11/webapp-php:latest
+    image: dogman11/webapp-php:latest   # i CI ersätts 'latest' gärna med commit-tag
+    environment:
+      APP_TZ: Europe/Stockholm
+      MESSAGE_STORE: /home/data/messages.jsonl   # skrivs på Azure's persistenta /home
+
   nginx:
     image: dogman11/webapp-nginx:latest
-    depends_on: [php]
+    depends_on:
+      - php
+    ports:
+      - "80:80"   # Azure routar trafik hit
