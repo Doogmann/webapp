@@ -1,28 +1,29 @@
-version: "3.9"
-
 services:
   php:
     build:
       context: .
       dockerfile: php.Dockerfile
-    image: dogman11/webappphp:latest
-    container_name: inl2-php
+    image: dogman11/webapp-php:latest
     working_dir: /var/www/html
+    environment:
+      MESSAGE_STORE: /var/www/html/storage/messages.jsonl
+      APP_TZ: Europe/Stockholm
+    volumes:
+      - ./storage:/var/www/html/storage
     healthcheck:
       test: ["CMD", "php", "-v"]
       interval: 30s
       timeout: 3s
       retries: 3
+    restart: unless-stopped
 
   nginx:
     build:
       context: .
       dockerfile: nginx.Dockerfile
-    image: dogman11/webappnginx:latest
-    container_name: inl2-nginx
+    image: dogman11/webapp-nginx:latest
     depends_on:
       - php
     ports:
       - "8080:80"
-    # Viktigt: Nginx pratar med php-tjänsten via dess servicenamn
-    # (detta ställs in i default.conf via fastcgi_pass php:9000)
+    restart: unless-stopped

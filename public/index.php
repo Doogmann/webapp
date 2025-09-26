@@ -3,59 +3,51 @@ declare(strict_types=1);
 require __DIR__.'/../src/bootstrap.php';
 require __DIR__.'/../src/views.php';
 
-$path = path();
+$path = strtok((string)($_SERVER['REQUEST_URI'] ?? '/'), '?') ?: '/';
 
-if ($path === '/health') { header('Content-Type:text/plain'); echo 'OK'; exit; }
+if ($path === '/health') {
+    header('Content-Type: text/plain; charset=utf-8'); echo 'OK'; exit;
+}
 
-if ($path === '/contact' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!csrf_ok()) {
-        http_response_code(419);
-        layout('CSRF-fel', '<div class="card"><h2>Ogiltig förfrågan</h2><p>Försök igen.</p></div>');
-        exit;
+if ($path === '/contact' && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+    if (!check_csrf($_POST['csrf'] ?? '')) {
+        http_response_code(400);
+        echo layout('Kontakt', contact_form('Ogiltig CSRF-token.')); exit;
     }
     $name = trim((string)($_POST['name'] ?? ''));
-    $msg  = trim((string)($_POST['message'] ?? ''));
-    if ($name === '' || $msg === '') {
-        layout('Kontakt', '<div class="card"><h2>Kontakt</h2><p>Fyll i namn och meddelande.</p></div>');
-        exit;
+    $message = trim((string)($_POST['message'] ?? ''));
+
+    // enkel validering
+    if ($name === '' || $message === '') {
+        echo layout('Kontakt', contact_form('Fyll i både namn och meddelande.')); exit;
     }
-    $summary = '<div class="card"><h2>Tack!</h2><p>Vi hör av oss, '.e($name).'.</p><p class="muted">Meddelande:</p><pre>'.e($msg).'</pre></div>';
-    layout('Tack', $summary);
-    exit;
+    if (mb_strlen($name) > 120 || mb_strlen($message) > 1000) {
+        echo layout('Kontakt', contact_form('För långa fält.')); exit;
+    }
+
+    $ip = (string)($_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'unknown');
+
+    if (!save_message($name, $message, $ip)) {
+        http_response_code(500);
+        echo layout('Kontakt', contact_form('Kunde inte spara just nu. Försök igen senare.')); exit;
+    }
+
+    echo layout('Tack', success_view($name, $message)); exit;
 }
 
-if ($path === '/contact' && $_SERVER['REQUEST_METHOD'] === 'GET') {
-    ob_start(); ?>
-    <div class="card">
-      <h2>Kontakt</h2>
-      <form method="post" action="/contact" autocomplete="off">
-        <?= csrf_field(); ?>
-        <label>Namn</label>
-        <input name="name" minlength="2" maxlength="80" required>
-        <label style="margin-top:10px">Meddelande</label>
-        <textarea name="message" rows="4" minlength="3" maxlength="1000" required></textarea>
-        <div style="margin-top:12px">
-          <button class="btn" type="submit">Skicka</button>
-        </div>
-      </form>
-    </div>
-    <?php layout('Kontakt', ob_get_clean()); exit;
+if ($path === '/contact') {
+    echo layout('Kontakt', contact_form()); exit;
 }
 
-if ($path === '/') {
-    $hero = <<<HTML
-    <div class="card">
-      <h1 style="margin:0 0 6px 0">Hej från min PHP-app i Docker! 🚀</h1>
-      <p class="muted">PHP-FPM + Nginx · Docker · Azure Web App for Containers</p>
-      <p><a class="btn" href="/contact">Skriv ett meddelande</a></p>
-    </div>
-HTML;
-    layout('Hem', $hero); exit;
+if ($path === '/messages') {
+    $rows = load_messages(200);
+    echo layout('Meddelanden', messages_list($rows)); exit;
 }
 
-// (valfritt) säkrad phpinfo – aktivera via APP_DEBUG_INFO=1 i miljön
-if ($path === '/info' && getenv('APP_DEBUG_INFO') === '1') { phpinfo(); exit; }
-
-// 404
-http_response_code(404);
-layout('Saknas', '<div class="card"><h2>404</h2><p>Sidan finns inte.</p></div>');
+// Home
+$home = '<section style="background:#151518;padding:2rem;border-radius:16px;">'
+      . '<h1>Hej från min PHP-app i Docker! 🚀</h1>'
+      . '<p>PHP-FPM + Nginx + Docker + Azure Web App for Containers</p>'
+      . '<p><a href="/contact" style="color:#9be7b0;">Skriv ett meddelande</a></p>'
+      . '</section>';
+echo layout('Hem', $home);
