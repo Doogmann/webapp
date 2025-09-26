@@ -1,19 +1,18 @@
 <?php
+// ===== Views (layout + vyhjälpare) =====
 
-// ================= Layout (neon/dark + matrix-partiklar) =================
 function layout(string $title, string $content): string {
-    $nonce  = e(csp_nonce());
-    $footer = 'Mirsad Karangja - © WebApp';
+    $nonce = e(csp_nonce());
 
-    $html = <<<'HTML'
+    $html = <<<HTML
 <!doctype html>
 <html lang="sv">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>{{TITLE}}</title>
+  <title>{$title}</title>
   <style>
-    :root{--neon:#00f0ff;--bg:#0a0a0a;--card:#0d1117;--text:#e7fbff;--glow:rgba(0,240,255,.45);--link:#9be7b0}
+    :root{--neon:#00f0ff;--bg:#0a0f12;--card:#0d1117;--text:#e7fbff;--glow:rgba(0,240,255,.45);--link:#9be7b0}
     *{box-sizing:border-box} html,body{height:100%}
     body{margin:0;font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
     a{color:var(--link);text-decoration:none}
@@ -40,41 +39,40 @@ function layout(string $title, string $content): string {
 <body>
   <canvas id="bg"></canvas>
 
-  <header><div class="wrap nav">
-    <div class="brand">WebApp</div>
-    <a class="pill" href="/">Hem</a>
-    <a class="pill" href="/contact">Kontakt</a>
-    <a class="pill" href="/messages">Meddelanden</a>
-    <a class="pill" href="/health">Health</a>
-  </div></header>
+  <header>
+    <div class="wrap nav">
+      <div class="brand">WebApp</div>
+      <a class="pill" href="/">Hem</a>
+      <a class="pill" href="/contact">Kontakt</a>
+      <a class="pill" href="/messages">Meddelanden</a>
+      <a class="pill" href="/health">Health</a>
+    </div>
+  </header>
 
-  <main class="wrap">
-    <div class="card">{{CONTENT}}</div>
-  </main>
+  <main class="wrap">{$content}</main>
 
-  <footer class="wrap">{{FOOTER}}</footer>
+  <footer>Mirsad Karangja – © WebApp</footer>
 
-  <script nonce="{{NONCE}}">
-    // Matrix-inspirerade partiklar (punkter + tunna länkar)
+  <script nonce="{$nonce}">
+    // Matrix-inspirerade partiklar + linjer
     const c=document.getElementById('bg'),ctx=c.getContext('2d');
     let W=0,H=0,P=[],N=120,LINK=120;
-
     function resize(){
       W=c.width=innerWidth; H=c.height=innerHeight;
-      P=Array.from({length:N},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.7,vy:(Math.random()-.5)*.7}));
+      P=[...Array(N)].map(()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.7,vy:(Math.random()-.5)*.7}));
     }
     function tick(){
       ctx.clearRect(0,0,W,H);
-      ctx.fillStyle='rgba(110,231,183,0.9)';
-      for(const p of P){
+      ctx.fillStyle='rgba(110,231,183,.9)';
+      P.forEach(p=>{
         p.x+=p.vx; p.y+=p.vy;
         if(p.x<0||p.x>W) p.vx*=-1;
         if(p.y<0||p.y>H) p.vy*=-1;
         ctx.beginPath(); ctx.arc(p.x,p.y,1.8,0,Math.PI*2); ctx.fill();
-      }
+      });
       for(let i=0;i<P.length;i++){
         for(let j=i+1;j<P.length;j++){
-          const a=P[i],b=P[j],d=Math.hypot(a.x-b.x,a.y-b.y);
+          const a=P[i], b=P[j], d=Math.hypot(a.x-b.x,a.y-b.y);
           if(d<LINK){
             ctx.strokeStyle=`rgba(110,231,183,${1-d/LINK})`;
             ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
@@ -83,21 +81,18 @@ function layout(string $title, string $content): string {
       }
       requestAnimationFrame(tick);
     }
-    addEventListener('resize', resize); resize(); tick();
+    addEventListener('resize', resize);
+    resize(); tick();
   </script>
 </body>
 </html>
 HTML;
 
-    return strtr($html, [
-        '{{TITLE}}'   => e($title),
-        '{{CONTENT}}' => $content,
-        '{{FOOTER}}'  => e($footer),
-        '{{NONCE}}'   => $nonce,
-    ]);
+    return $html;
 }
 
-// =================== Komponenter/sektioner =============================
+// ===== Komponenter/”views” =====
+
 function hero(string $title, string $subtitle, string $ctaHref = "/contact", string $ctaText = "Skriv ett meddelande"): string {
     return '<section class="hero"><h1>'.e($title).'</h1><p>'.e($subtitle).'</p>'
          . '<a class="btn" href="'.e($ctaHref).'">'.e($ctaText).'</a></section>';
@@ -106,25 +101,26 @@ function hero(string $title, string $subtitle, string $ctaHref = "/contact", str
 function contact_form(?string $error = null): string {
     $err = $error ? '<p style="color:#ff8080;margin:0 0 .5rem 0">'.e($error).'</p>' : '';
     return $err
+         . '<div class="card">'
          . '<form method="post" action="/contact" style="display:grid;gap:.75rem;">'
          . '<div><label>Namn</label><input name="name" maxlength="120"></div>'
          . '<div><label>Meddelande</label><textarea name="message" rows="4" maxlength="1000"></textarea></div>'
          . csrf_field()
          . '<button class="submit">Skicka</button>'
-         . '</form>';
+         . '</form></div>';
 }
 
 function success_view(string $name, string $message): string {
-    return '<h2>Tack!</h2>'
+    return '<div class="card"><h2>Tack!</h2>'
          . '<p><strong>Namn:</strong> '.e($name).'</p>'
          . '<p><strong>Meddelande:</strong><br><code>'.e($message).'</code></p>'
-         . '<p><a href="/messages">Visa alla meddelanden</a></p>';
+         . '<p><a href="/messages">Visa alla meddelanden</a></p></div>';
 }
 
 function messages_list(array $rows): string {
-    if (!$rows) return '<p>Inga meddelanden sparade ännu.</p>';
+    if (!$rows) return '<div class="card"><p>Inga meddelanden sparade ännu.</p></div>';
     $tz = app_timezone();
-    $out = '';
+    $out = '<div class="card">';
     foreach ($rows as $r) {
         $iso = (string)($r['ts'] ?? '');
         $ts  = $iso;
@@ -137,5 +133,6 @@ function messages_list(array $rows): string {
               .   '<div style="white-space:pre-wrap">'.$msg.'</div>'
               . '</div>';
     }
+    $out .= '</div>';
     return $out;
 }
