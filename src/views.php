@@ -1,135 +1,106 @@
 <?php
 
-// Baslayout med neon/dark-theme + canvas-bakgrund (CSP-nonce skyddar inline-scriptet)
+// === Layout (neon/dark, canvas-bakgrund) ==============================
 function layout(string $title, string $content): string {
     $nonce = e(csp_nonce());
-    return '<!doctype html><html lang="sv"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-    . '<title>'.e($title).'</title>'
-    . '<style>
-        :root{--neon:#00f0ff;--bg:#0a0a0a;--card:#0d1117;--text:#e7fbff;--glow:rgba(0,240,255,.45);--link:#9be7b0}
-        *{box-sizing:border-box} html,body{height:100%}
-        body{margin:0;font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
-        a{color:var(--link);text-decoration:none}
-        header{padding:24px 16px 0}
-        .wrap{max-width:1100px;margin:0 auto;padding:16px}
-        .nav{display:flex;gap:16px;align-items:center;justify-content:flex-start}
-        .brand{font-weight:800;letter-spacing:.4px}
-        .pill{padding:8px 12px;border:1px solid transparent;border-radius:999px}
-        .pill:hover{border-color:var(--glow)}
-        .hero{margin:16px auto 12px;background:linear-gradient(180deg,rgba(0,240,255,.08),rgba(0,240,255,.02)),var(--card);
-              border:1px solid var(--glow);border-radius:16px;padding:28px;box-shadow:0 0 24px rgba(0,240,255,.18)}
-        .hero h1{margin:0 0 8px;font-weight:800;letter-spacing:1.2px;font-size:clamp(28px,4.5vw,40px);color:var(--neon);text-shadow:0 0 10px var(--neon)}
-        .btn{display:inline-block;margin-top:10px;padding:10px 14px;border-radius:12px;background:var(--link);color:#06140a;font-weight:700}
-        .card{background:linear-gradient(180deg,rgba(0,240,255,.08),rgba(0,240,255,.02)),var(--card);
-              border:1px solid var(--glow);border-radius:14px;padding:22px;box-shadow:0 0 22px rgba(0,240,255,.15)}
-        label{display:block;margin:.3rem 0 .25rem}
-        input,textarea{width:100%;padding:.65rem;border-radius:10px;background:#0e0e11;color:var(--text);border:1px solid #272b33}
-        .submit{margin-top:.6rem;background:#8be3a3;color:#0b0b0d;border:none;padding:.6rem 1rem;border-radius:10px;cursor:pointer}
-        footer{opacity:.75;text-align:center;margin:28px 0 40px}
-        canvas#bg{position:fixed;inset:0;z-index:-1}
-        hr{border:0;border-top:1px solid #222;margin:12px 0}
-      </style>'
-    . '<canvas id="bg"></canvas>'
-    . '<header><div class="wrap nav">'
-      . '<div class="brand">WebApp</div>'
-      . '<a class="pill" href="/">Hem</a>'
-      . '<a class="pill" href="/contact">Kontakt</a>'
-      . '<a class="pill" href="/messages">Meddelanden</a>'
-      . '<a class="pill" href="/health">Health</a>'
-    . '</div></header>'
-    . '<main class="wrap">'.$content.'</main>'
-    . '<footer>Mirsad Karangja - © WebApp</footer>'
-    . '<script nonce="'.$nonce.'">
-    <?php
-function render_layout(string $title, string $content, string $nonce = ''): string {
-    $nonceAttr = $nonce ? ' nonce="'.$nonce.'"' : '';
+    $footer = 'Mirsad Karangja - © WebApp';
+
     return <<<HTML
 <!doctype html>
 <html lang="sv">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>{$title}</title>
   <style>
-    :root{--bg:#0b0f14;--panel:#121820;--text:#e5f7ff;--accent:#6ee7b7;}
-    html,body{height:100%}body{margin:0;background:#0b0f14;color:#e5f7ff;font:16px/1.5 system-ui,Segoe UI,Roboto,Helvetica,Arial}
-    .container{max-width:1024px;margin:0 auto;padding:24px}
-    header,footer{position:relative;z-index:2}
-    .card{background:#121820;border:1px solid #1d2733;border-radius:14px;padding:24px;box-shadow:0 8px 30px rgba(0,0,0,.35)}
-    a{color:#6ee7b7;text-decoration:none}
-    nav a{margin-right:18px}
-    #bg{position:fixed;inset:0;z-index:0}
+    :root{--neon:#00f0ff;--bg:#0a0a0a;--card:#0d1117;--text:#e7fbff;--glow:rgba(0,240,255,.45);--link:#9be7b0}
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0;font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+    a{color:var(--link);text-decoration:none}
+    header{padding:24px 16px 0}
+    .wrap{max-width:1100px;margin:0 auto;padding:16px}
+    .nav{display:flex;gap:16px;align-items:center;justify-content:flex-start}
+    .brand{font-weight:800;letter-spacing:.4px}
+    .pill{padding:8px 12px;border:1px solid transparent;border-radius:999px}
+    .pill:hover{border-color:var(--glow)}
+    .hero{margin:16px auto 12px;background:linear-gradient(180deg,rgba(0,240,255,.08),rgba(0,240,255,.02)),var(--card);
+          border:1px solid var(--glow);border-radius:16px;padding:28px;box-shadow:0 0 24px rgba(0,240,255,.18)}
+    .hero h1{margin:0 0 8px;font-weight:800;letter-spacing:1.2px;font-size:clamp(28px,4.5vw,40px);color:var(--neon);text-shadow:0 0 10px var(--neon)}
+    .btn{display:inline-block;margin-top:10px;padding:10px 14px;border-radius:12px;background:var(--link);color:#06140a;font-weight:700}
+    .card{background:linear-gradient(180deg,rgba(0,240,255,.08),rgba(0,240,255,.02)),var(--card);
+          border:1px solid var(--glow);border-radius:14px;padding:22px;box-shadow:0 0 22px rgba(0,240,255,.15)}
+    label{display:block;margin:.3rem 0 .25rem}
+    input,textarea{width:100%;padding:.65rem;border-radius:10px;background:#0e0e11;color:var(--text);border:1px solid #272b33}
+    .submit{margin-top:.6rem;background:#8be3a3;color:#0b0b0d;border:none;padding:.6rem 1rem;border-radius:10px;cursor:pointer}
+    footer{opacity:.75;text-align:center;margin:28px 0 40px}
+    canvas#bg{position:fixed;inset:0;z-index:-1}
+    hr{border:0;border-top:1px solid #222;margin:12px 0}
   </style>
 </head>
 <body>
-<canvas id="bg"></canvas>
+  <canvas id="bg"></canvas>
 
-<header class="container">
-  <nav>
-    <strong>WebApp</strong>
-    <a href="/">Hem</a>
-    <a href="/contact">Kontakt</a>
-    <a href="/messages">Meddelanden</a>
-    <a href="/health">Health</a>
-  </nav>
-</header>
+  <header><div class="wrap nav">
+    <div class="brand">WebApp</div>
+    <a class="pill" href="/">Hem</a>
+    <a class="pill" href="/contact">Kontakt</a>
+    <a class="pill" href="/messages">Meddelanden</a>
+    <a class="pill" href="/health">Health</a>
+  </div></header>
 
-<main class="container">
-  <div class="card">
-    {$content}
-  </div>
-</main>
+  <main class="wrap">
+    <div class="card">{$content}</div>
+  </main>
 
-<footer class="container">
-  <small>© WebApp</small>
-</footer>
+  <footer class="wrap">{$footer}</footer>
 
-<script{$nonceAttr}>
-// Matrix-liknande partiklar (ingen text, bara punkter + länkar)
-const c=document.getElementById('bg'), ctx=c.getContext('2d');
-let W=0,H=0, P=[], LINKS=120, N=120;
-function resize(){ W=c.width=innerWidth; H=c.height=innerHeight;
-  P=[...Array(N)].map(()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*0.7,vy:(Math.random()-.5)*0.7}));
-}
-function tick(){
-  ctx.clearRect(0,0,W,H);
-  // lätt grön ton
-  ctx.fillStyle='rgba(110,231,183,0.9)';
-  P.forEach(p=>{
-    p.x+=p.vx; p.y+=p.vy;
-    if(p.x<0||p.x>W) p.vx*=-1;
-    if(p.y<0||p.y>H) p.vy*=-1;
-    ctx.beginPath(); ctx.arc(p.x,p.y,1.8,0,Math.PI*2); ctx.fill();
-  });
-  for(let i=0;i<P.length;i++){
-    for(let j=i+1;j<P.length;j++){
-      const a=P[i], b=P[j], d=Math.hypot(a.x-b.x,a.y-b.y);
-      if(d<LINKS){
-        ctx.strokeStyle=`rgba(110,231,183,${1-d/LINKS})`;
-        ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
-      }
+  <script nonce="{$nonce}">
+    // Matrix-inspirerade partiklar (punkter + tunna länkar)
+    const c = document.getElementById('bg'), ctx = c.getContext('2d');
+    let W=0,H=0, P=[], N=120, LINK=120;
+
+    function resize(){
+      W = c.width = innerWidth; H = c.height = innerHeight;
+      P = Array.from({length:N},()=>({
+        x:Math.random()*W, y:Math.random()*H,
+        vx:(Math.random()-.5)*.7, vy:(Math.random()-.5)*.7
+      }));
     }
-  }
-  requestAnimationFrame(tick);
-}
-addEventListener('resize', resize);
-resize(); tick();
-</script>
+    function tick(){
+      ctx.clearRect(0,0,W,H);
+      // punkter
+      ctx.fillStyle = 'rgba(110,231,183,0.9)';
+      for(const p of P){
+        p.x+=p.vx; p.y+=p.vy;
+        if(p.x<0||p.x>W) p.vx*=-1;
+        if(p.y<0||p.y>H) p.vy*=-1;
+        ctx.beginPath(); ctx.arc(p.x,p.y,1.8,0,Math.PI*2); ctx.fill();
+      }
+      // länkar
+      for(let i=0;i<P.length;i++){
+        for(let j=i+1;j<P.length;j++){
+          const a=P[i], b=P[j], d=Math.hypot(a.x-b.x,a.y-b.y);
+          if(d<LINK){
+            ctx.strokeStyle = `rgba(110,231,183,${1 - d/LINK})`;
+            ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(tick);
+    }
+    addEventListener('resize', resize); resize(); tick();
+  </script>
 </body>
 </html>
 HTML;
 }
-</script>'
-    . '</html>';
-}
 
-// Hero-sektion för startsidan
+// === Sektioner/komponenter ============================================
 function hero(string $title, string $subtitle, string $ctaHref = "/contact", string $ctaText = "Skriv ett meddelande"): string {
     return '<section class="hero"><h1>'.e($title).'</h1><p>'.e($subtitle).'</p>'
          . '<a class="btn" href="'.e($ctaHref).'">'.e($ctaText).'</a></section>';
 }
 
-// Kontaktformulär (innehåll – läggs i .card i index.php)
 function contact_form(?string $error = null): string {
     $err = $error ? '<p style="color:#ff8080;margin:0 0 .5rem 0">'.e($error).'</p>' : '';
     return $err
