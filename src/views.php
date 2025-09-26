@@ -60,7 +60,7 @@ hr{border:0;border-top:1px solid #1f2630;margin:12px 0}
     $html .= '<main class="wrap">' . $content . '</main>';
 
     // Footer – ändra texten här om du vill
-    $html .= '<footer>© WebApp</footer>';
+    $html .= '<footer> Mirsad Karangja © WebApp</footer>';
 
     // Partikel-nät (Matrix-inspirerat) – ren JS, inga PHP-taggar inuti
     $html .= '<script nonce="' . $nonce . '">
