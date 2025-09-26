@@ -39,7 +39,8 @@ function layout(string $title, string $content): string {
     . '</div></header>'
     . '<main class="wrap">'.$content.'</main>'
     . '<footer>Mirsad Karangja - © WebApp</footer>'
-    . '(() => {
+    . '<script nonce="'.$nonce.'">
+        (() => {
   const c=document.getElementById("bg"),x=c.getContext("2d");let W=0,H=0,raf=0;
   function R(){W=c.width=innerWidth;H=c.height=innerHeight;}
   addEventListener("resize",R); R();
@@ -51,6 +52,7 @@ function layout(string $title, string $content): string {
       if(d<120){x.strokeStyle=`rgba(0,240,255,${1-d/120})`;x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke();}}
     raf=requestAnimationFrame(D);} D();
 })();
+      </script>'
     . '</html>';
 }
 
