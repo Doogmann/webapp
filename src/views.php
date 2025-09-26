@@ -38,7 +38,7 @@ function layout(string $title, string $content): string {
       . '<a class="pill" href="/health">Health</a>'
     . '</div></header>'
     . '<main class="wrap">'.$content.'</main>'
-    . '<footer>© WebApp</footer>'
+    . '<footer>Mirsad Karangja - © WebApp</footer>'
     . '<script nonce="'.$nonce.'">
         const c=document.getElementById("bg"),x=c.getContext("2d");let W,H,P=[];
         function R(){W=c.width=innerWidth;H=c.height=innerHeight;P=[...Array(60)].map(()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.7,vy:(Math.random()-.5)*.7}))}
