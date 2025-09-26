@@ -1,17 +1,17 @@
 <?php
 
-// === Layout (neon/dark, canvas-bakgrund) ==============================
+// ================= Layout (neon/dark + matrix-partiklar) =================
 function layout(string $title, string $content): string {
-    $nonce = e(csp_nonce());
+    $nonce  = e(csp_nonce());
     $footer = 'Mirsad Karangja - © WebApp';
 
-    return <<<HTML
+    $html = <<<'HTML'
 <!doctype html>
 <html lang="sv">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>{$title}</title>
+  <title>{{TITLE}}</title>
   <style>
     :root{--neon:#00f0ff;--bg:#0a0a0a;--card:#0d1117;--text:#e7fbff;--glow:rgba(0,240,255,.45);--link:#9be7b0}
     *{box-sizing:border-box} html,body{height:100%}
@@ -49,39 +49,34 @@ function layout(string $title, string $content): string {
   </div></header>
 
   <main class="wrap">
-    <div class="card">{$content}</div>
+    <div class="card">{{CONTENT}}</div>
   </main>
 
-  <footer class="wrap">{$footer}</footer>
+  <footer class="wrap">{{FOOTER}}</footer>
 
-  <script nonce="{$nonce}">
+  <script nonce="{{NONCE}}">
     // Matrix-inspirerade partiklar (punkter + tunna länkar)
-    const c = document.getElementById('bg'), ctx = c.getContext('2d');
-    let W=0,H=0, P=[], N=120, LINK=120;
+    const c=document.getElementById('bg'),ctx=c.getContext('2d');
+    let W=0,H=0,P=[],N=120,LINK=120;
 
     function resize(){
-      W = c.width = innerWidth; H = c.height = innerHeight;
-      P = Array.from({length:N},()=>({
-        x:Math.random()*W, y:Math.random()*H,
-        vx:(Math.random()-.5)*.7, vy:(Math.random()-.5)*.7
-      }));
+      W=c.width=innerWidth; H=c.height=innerHeight;
+      P=Array.from({length:N},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.7,vy:(Math.random()-.5)*.7}));
     }
     function tick(){
       ctx.clearRect(0,0,W,H);
-      // punkter
-      ctx.fillStyle = 'rgba(110,231,183,0.9)';
+      ctx.fillStyle='rgba(110,231,183,0.9)';
       for(const p of P){
         p.x+=p.vx; p.y+=p.vy;
         if(p.x<0||p.x>W) p.vx*=-1;
         if(p.y<0||p.y>H) p.vy*=-1;
         ctx.beginPath(); ctx.arc(p.x,p.y,1.8,0,Math.PI*2); ctx.fill();
       }
-      // länkar
       for(let i=0;i<P.length;i++){
         for(let j=i+1;j<P.length;j++){
-          const a=P[i], b=P[j], d=Math.hypot(a.x-b.x,a.y-b.y);
+          const a=P[i],b=P[j],d=Math.hypot(a.x-b.x,a.y-b.y);
           if(d<LINK){
-            ctx.strokeStyle = `rgba(110,231,183,${1 - d/LINK})`;
+            ctx.strokeStyle=`rgba(110,231,183,${1-d/LINK})`;
             ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
           }
         }
@@ -93,9 +88,16 @@ function layout(string $title, string $content): string {
 </body>
 </html>
 HTML;
+
+    return strtr($html, [
+        '{{TITLE}}'   => e($title),
+        '{{CONTENT}}' => $content,
+        '{{FOOTER}}'  => e($footer),
+        '{{NONCE}}'   => $nonce,
+    ]);
 }
 
-// === Sektioner/komponenter ============================================
+// =================== Komponenter/sektioner =============================
 function hero(string $title, string $subtitle, string $ctaHref = "/contact", string $ctaText = "Skriv ett meddelande"): string {
     return '<section class="hero"><h1>'.e($title).'</h1><p>'.e($subtitle).'</p>'
          . '<a class="btn" href="'.e($ctaHref).'">'.e($ctaText).'</a></section>';
