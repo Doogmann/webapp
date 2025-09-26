@@ -39,16 +39,18 @@ function layout(string $title, string $content): string {
     . '</div></header>'
     . '<main class="wrap">'.$content.'</main>'
     . '<footer>Mirsad Karangja - © WebApp</footer>'
-    . '<script nonce="'.$nonce.'">
-        const c=document.getElementById("bg"),x=c.getContext("2d");let W,H,P=[];
-        function R(){W=c.width=innerWidth;H=c.height=innerHeight;P=[...Array(60)].map(()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.7,vy:(Math.random()-.5)*.7}))}
-        function D(){x.clearRect(0,0,W,H);x.fillStyle="#00f0ff";
-          P.forEach(n=>{n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1;x.beginPath();x.arc(n.x,n.y,2,0,7);x.fill();});
-          for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++){const a=P[i],b=P[j],d=Math.hypot(a.x-b.x,a.y-b.y);
-            if(d<120){x.strokeStyle=`rgba(0,240,255,${1-d/120})`;x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke();}}
-          requestAnimationFrame(D)}
-        addEventListener("resize",R);R();D();
-      </script>'
+    . '(() => {
+  const c=document.getElementById("bg"),x=c.getContext("2d");let W=0,H=0,raf=0;
+  function R(){W=c.width=innerWidth;H=c.height=innerHeight;}
+  addEventListener("resize",R); R();
+  const N=398, S=0.44;
+  let P=Array.from({length:N},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*S,vy:(Math.random()-.5)*S}));
+  function D(){x.clearRect(0,0,W,H); const col=getComputedStyle(document.documentElement).getPropertyValue("--neon").trim()||"#8000ff";
+    x.fillStyle=col; for(const n of P){n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1; x.beginPath(); x.arc(n.x,n.y,2,0,7); x.fill();}
+    for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++){const a=P[i],b=P[j],d=Math.hypot(a.x-b.x,a.y-b.y);
+      if(d<120){x.strokeStyle=`rgba(0,240,255,${1-d/120})`;x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke();}}
+    raf=requestAnimationFrame(D);} D();
+})();
     . '</html>';
 }
 

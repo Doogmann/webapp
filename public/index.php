@@ -35,7 +35,7 @@ if ($p === '/messages') {
 
 // Hem
 echo layout('Hem', hero(
-    'Hej från min PHP-app i Docker! 🚀',
+    'Välkommen till min PHP-app i Docker! 🚀',
     'PHP-FPM + Nginx · Docker · Azure Web App for Containers',
     '/contact', 'Skriv ett meddelande'
 ));
